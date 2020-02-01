@@ -1,0 +1,59 @@
+.profileImage {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  border: 1px solid #1f5842;
+  background-color: #1f5842;
+}
+
+.input-style-public {
+  background-color: #fff;
+  @include font-source-sans(1rem, #000, 500, 1.8);
+  padding: 2px;
+  border-bottom: 1px solid $colorGray;
+  text-align: right;
+  width: 100%;
+
+  &:focus {
+    border-bottom: 1px solid $colorGray;
+  }
+}
+
+.input-style-public-border {
+  background-color: #fff;
+  @include font-source-sans(1rem, #000, 500, 1.8);
+  padding: 2px;
+  border: 1px solid $colorGray;
+  text-align: right;
+  width: 100%;
+  @include radius(10px);
+
+  &:focus {
+    border: 1px solid $colorGray;
+  }
+}
+
+.iconInput-public {
+  position: absolute;
+  display: inline;
+  bottom: 6px;
+  left: 0%;
+}
+
+.textarea-style-public {
+  background-color: #fff;
+  @include font-source-sans(1rem, #000, 500, 1.8);
+  text-align: right;
+  padding: 2px;
+  border: 1px solid $colorGray;
+  @include radius(10px);
+  width: 100%;
+
+  &:focus {
+    border: 1px solid $colorGray;
+    @include radius(10px);
+  }
+}
+.img-logo-messenger{
+max-width: 20px;
+}

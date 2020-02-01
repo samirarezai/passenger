@@ -1,0 +1,3 @@
+.text-gray-small{
+  @include font-source-sans(.9rem, $colorGray, 400, 1.8);
+}

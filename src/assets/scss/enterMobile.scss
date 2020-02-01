@@ -1,0 +1,31 @@
+
+
+.text-gray-head {
+  @include font-source-sans(1rem, $colorGray, 600, 1.8);
+}
+.input-style{
+  background-color: #fff;
+  @include font-source-sans(1rem, #000, 500, 1.8);
+  padding: 2px ;
+  border-bottom: 2px solid $greenColor;
+  text-align: right;
+  width: 80%;
+  @include media-min($M){
+    width: 40%;
+  }
+  &:focus{
+    border-bottom: 2px solid $greenColor;
+  }
+}
+.iconInput{
+  position: absolute;
+  display: inline;
+  bottom: 6px;
+  left: 10%;
+  @include media-min($M){
+    left: 30%;
+  }
+}
+.border-right-green{
+  border: 5px solid $greenColor;
+}

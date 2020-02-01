@@ -1,0 +1,54 @@
+.menu {
+  background-color: $greenColor;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 102;
+  width: 50%;
+  transition: all .4s;
+  overflow: hidden;
+  opacity: 1;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+  @media screen and (min-width: 768px) {
+    width: 30%;
+  }
+}
+
+
+.NavLink {
+  padding-right: 15px;
+  color: #fff;
+  line-height:3rem;
+  font-size: 1rem;
+  font-weight: 500;
+
+  &:hover {
+    color: $goldColor;
+  }
+}
+
+.activeLink {
+  color: $goldColor;
+  text-decoration: none;
+
+}
+
+.border-item {
+  border-bottom: 1px solid #c3c4ca1a;
+}
+
+.right-50 {
+  right: -50%;
+  opacity: 0;
+}
+
+.imageNav {
+  max-width: 30px;
+}
+
+.imageNav svg {
+  fill: #fff !important;
+
+
+}
