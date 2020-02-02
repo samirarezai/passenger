@@ -14,6 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {faLocationArrow} from "@fortawesome/free-solid-svg-icons/faLocationArrow";
 import {faLongArrowAltLeft} from "@fortawesome/free-solid-svg-icons/faLongArrowAltLeft";
+import {faBars} from "@fortawesome/free-solid-svg-icons/faBars";
 
 const Header = (props) => {
     const [open, setOpen] = useState(false);
@@ -68,7 +69,7 @@ const Header = (props) => {
                 <div className="col-4 text-right">
                     <div className={` ${props.showMenu ? '' : 'hidden'}`}>
                         <button className="font-weight-bold text-white" onClick={() => setOpen(true)}
-                                style={{fontSize: '2rem'}}>&equiv;</button>
+                                style={{fontSize: '2rem'}}><FontAwesomeIcon icon={faBars} color="#fff" size={'xs'} className="ml-2"/></button>
 
                     </div>
 

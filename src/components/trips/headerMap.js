@@ -2,17 +2,18 @@ import React, {useState} from 'react';
 import {NavLink} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-    faAddressBook,
+    faAddressBook, faAlignLeft,
     faCalculator,
     faCar, faClock,
     faGlobeAsia,
     faHome,
-    faPhone,
+    faPhone, faSearchLocation,
     faSwatchbook,
     faUser
 } from "@fortawesome/free-solid-svg-icons";
 import {faLocationArrow} from "@fortawesome/free-solid-svg-icons/faLocationArrow";
 import {faLongArrowAltLeft} from "@fortawesome/free-solid-svg-icons/faLongArrowAltLeft";
+import {faBars} from "@fortawesome/free-solid-svg-icons/faBars";
 
 const HeaderMap = (props) => {
     const [open, setOpen] = useState(false);
@@ -64,36 +65,59 @@ const HeaderMap = (props) => {
                 </ul>
             </div>
             <div className="row pt-2 mx-0 align-items-center">
-                <div className="col-1 text-right">
+                <div className="col-2 text-right">
                     <div className={` ${props.showMenu ? '' : 'hidden'}`}>
                         <button className="font-weight-bold text-white" onClick={() => setOpen(true)}
-                                style={{fontSize: '2rem'}}>&equiv;</button>
+                                style={{fontSize: '2rem'}}><FontAwesomeIcon icon={faBars} color="#fff" size={'xs'}
+                                                                            className="ml-2"/></button>
 
                     </div>
 
                 </div>
 
-                <div className="col-10 text-center">
-                    {/*{` ${props.address.city} f ${props.address.place} f ${props.address.district} ff ${props.address.locality} ss ${props.address.address}`}*/}
-                    <p className="text-white font-size-07"
-                       style={{fontFamily: 'IRANSans_light'}}
+                <div className="col-8 text-center">
+
+                    <div className={`${props.showSearch ? '' : 'hidden'}`}>
+                        <div className="position-relative">
+                            <input className="bg-transparent text-white input-style-public-border pr-1"
+                                   style={{
+                                       fontSize: '.8rem',
+                                       fontFamily: 'IRANSans_light'
+                                   }}
+                                   placeholder="جستجو کنید"
+                                   onChange={(e)=>props.searchInput(e.target.value)}
+                            />
+                            <FontAwesomeIcon icon={faSearchLocation} color="#fff"
+                                             size={'xs'}
+                                             className="position-absolute"
+                                             style={{
+                                                 fontSize: '1.1rem',
+                                                 left: '5px',
+                                                 top: '6px'
+                                             }}/>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-2 text-left ">
+                    <div className={`${props.showBack ? '' : 'hidden'}`}>
+                        <button className="font-weight-bold text-white"
+                                style={{fontSize: '2rem'}}
+                                onClick={props.onClick}
+                        ><FontAwesomeIcon icon={faLongArrowAltLeft} color="#fff" size={'xs'}/></button>
+
+                    </div>
+
+                </div>
+                <div className="col-12">
+                    <p
+                        className={`text-white font-size-07 text-right mt-2 ${props.showAddress ? '' : 'hidden'}`}
+                        style={{fontFamily: 'IRANSans_light'}}
                     >
-              {` ${props.address.city}${props.address.place && '،'}
+                        {` ${props.address.city}${props.address.place && '،'}
                  ${props.address.place}${props.address.district && '،'}
                  ${props.address.district}${props.address.locality && '،'}
                  ${props.address.locality}${props.address.address && '،'}
                  ${props.address.address}`}</p>
-
-                </div>
-                <div className="col-1 text-left ">
-                    <div className={`${props.showBack ? '' : 'hidden'}`}>
-                        <NavLink className="font-weight-bold text-white"
-                                 style={{fontSize: '2rem'}}
-                                 to={props.urlBack ? props.urlBack : '*'}
-                                 exact> &#8592;</NavLink>
-
-                    </div>
-
                 </div>
 
             </div>

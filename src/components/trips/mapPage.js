@@ -1,64 +1,157 @@
 import React, {Component} from 'react';
 import CedarMaps from '@cedarstudios/react-cedarmaps';
 import './map.scss';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-    faCheck,
-    faMapMarker, faPhone
-} from "@fortawesome/free-solid-svg-icons";
+import greenLeaf from '../../images/cedarmaps_marker_icon_start.png';
+import orangeLeaf from '../../images/cedarmaps_marker_icon_end.png';
 import HeaderMap from "./headerMap";
+import AddTrip from "./addTrip";
+
+const cedarMaps = require('@cedarstudios/cedarmaps');
+const client = cedarMaps('2e6f3b1a94fd3ae41bda2d1ac5cee21af542c0c2');
 
 class MapPage extends Component {
     state = {
-        lng: 51.40994892679396,
-        lat: 35.757528622282436,
+        lng: 51.40995817393991,
+        lat: 35.75755756138446,
+        zoom: 14,
         geocoder: null,
-        showRow: false,
+        origin: null,
+        destination: null,
         addDestination: false,
         showContent: false,
-        bottom: '-40vh'
+        search: '',
+        allowSearch: false,
+        listSearch: []
     };
-    showInfo = () => {
+
+    AddOrigin = () => {
         this.setState({
-            showRow: !this.state.showRow,
+            addDestination: true,
+            origin: this.state.geocoder,
+            lng: this.state.lng + 0.000199999999,
+            lat: this.state.lat + 0.000099999999
+        });
+    };
+    AddDestination = () => {
+        this.setState({
+            showContent: true,
+            destination: this.state.geocoder,
+        });
+    };
+    backClick = () => {
+        this.setState({
+            showContent: false,
+            addDestination: false,
+        });
+    };
+    searchInput = (value) => {
 
-        })
+        if (value.length >= 3 && value !== '') {
 
-        if (!this.state.showRow) {
             this.setState({
-                bottom: '0'
+                search: value
             })
-        } else {
-            this.setState({
-                bottom: '-40vh'
-            })
+            console.log(this.state.search)
         }
+            setTimeout(() => {
+                if (this.state.search === value) {
+                    this.setState({
+                        allowSearch: true
+                    })
+                }
+            }, 1300)
+
+
+    };
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        setTimeout(() => {
+            if (this.state.allowSearch) {
+                client.forwardGeocoding(encodeURIComponent(this.state.search), 'cedarmaps.streets', {type: 'roundabout'}, (err, res) => {
+
+                    let listSearch = res.filter((item) => {
+                        return item.components.province === "تهران";
+                    });
+                    this.setState({
+                        listSearch: listSearch,
+                        allowSearch: false
+                    })
+                });
+                console.log(this.state.listSearch);
+            }
+        }, 1000)
+
     }
 
     render() {
-        const cedarMaps = require('@cedarstudios/cedarmaps');
-        const client = cedarMaps('2e6f3b1a94fd3ae41bda2d1ac5cee21af542c0c2');
-        if(this.state.geocoder===null){
-        client.reverseGeocoding([this.state.lat, this.state.lng], {verbosity: true}, (err, res) => {
 
-            let geocoder = {
-                lng: this.state.lng,
-                lat: this.state.lat,
-                address: res.address,
-                locality: res.locality,
-                district: res.district,
-                place: res.place,
-                city: res.city,
-                province: res.province,
-                country: res.country
-            };
-            this.setState({
-                geocoder
+        if (this.state.geocoder === null) {
+            client.reverseGeocoding([this.state.lat, this.state.lng], {verbosity: true}, (err, res) => {
+                let geocoder = {
+                    lng: this.state.lng,
+                    lat: this.state.lat,
+                    address: res.address,
+                    locality: res.locality,
+                    district: res.district,
+                    place: res.place,
+                    city: res.city,
+                    province: res.province,
+                    country: res.country
+                };
+                this.setState({
+                    geocoder
+                });
             });
-        });}
+        }
 
         const {RotationControl, Popup, GeoJSONLayer, ReactMapboxGL, Cluster, ZoomControl, CenterControl, ScaleControl, Marker, Map, MapContext, L} = CedarMaps.getReactMapboxGl();
-
+        /*
+        * 0:
+        id: 625653
+        name: "ونک"
+        name_en: ""
+        alt_name: ""
+        alt_name_en: ""
+        type: "locality"
+        location:
+        bb:
+        ne: "35.787902600000002,51.396891400000001"
+        sw: "35.750329600000001,51.386025500000002"
+        __proto__: Object
+        center: "35.7643093874984,51.391913977109297"
+        __proto__: Object
+        address: ""
+        components:
+        country: "ایران"
+        province: "تهران"
+        city: "تهران"
+        districts: ["منطقه ۳"]
+        localities: []
+        __proto__: Object
+        __proto__: Object
+        1:
+        id: 248642
+        name: "میدان ونک"
+        name_en: "Vanak Sq"
+        alt_name: ""
+        alt_name_en: ""
+        type: "roundabout"
+        location: {bb: {…}, center: "35.757536173022501,51.409957192407198"}
+        address: "کاووسیه"
+        components: {country: "ایران", province: "تهران", city: "تهران", districts: Array(1), localities: Array(1)}
+        __proto__: Object
+        2:
+        id: 988763
+        name: "میدان ونک"
+        name_en: "Vanak Square"
+        alt_name: ""
+        alt_name_en: ""
+        type: "roundabout"
+        location: {bb: {…}, center: "38.0660056640736,46.398728811461801"}
+        address: ""
+        components: {country: "ایران", province: "آذربایجان شرقی", city: "تبریز", districts: Array(0), localities: Array(0)}
+        __proto__: Object
+        3:*/
         return (
             <>
                 <CedarMaps
@@ -68,6 +161,7 @@ class MapPage extends Component {
                     }}
                     token='2e6f3b1a94fd3ae41bda2d1ac5cee21af542c0c2'
                     preserveDrawingBuffer={false}
+                    zoom={[this.state.zoom]}
                     center={[this.state.lng, this.state.lat]}
                     onMove={(e) => {
                         this.setState({
@@ -77,9 +171,11 @@ class MapPage extends Component {
 
 
                     }}
+                    dragRotate={false}
+                    touchZoomRotate={false}
+                    onRotate={false}
                     onMoveEnd={
-                        (e)=>{
-                            console.log(e)
+                        (e) => {
                             client.reverseGeocoding([this.state.lat, this.state.lng], {verbosity: true}, (err, res) => {
 
                                 let geocoder = {
@@ -99,8 +195,16 @@ class MapPage extends Component {
                                     });
 
                                 }
-                            })
+                            });
                         }
+                    }
+                    onZoom={
+                        (e) => {
+                            this.setState({
+                                zoom: e.transform.zoom
+                            });
+                        }
+
                     }
                 >
 
@@ -113,128 +217,50 @@ class MapPage extends Component {
                     </Popup>*/}
                     <div className="container-fluid px-0 position-relative" dir="rtl" style={{zIndex: '100'}}>
                         <div className="bgGreen py-1">
-                            <HeaderMap showLogo={true} showMenu={true} address={this.state.geocoder} className="bgGreen"/>
+                            <HeaderMap showAddress={!this.state.showContent && true}
+                                       showSearch={!this.state.showContent && true}
+                                       showBack={true} showMenu={true}
+                                       address={this.state.geocoder}
+                                       className="bgGreen"
+                                       onClick={this.backClick}
+                                       searchInput={this.searchInput}
+                            />
                         </div>
-
-
                     </div>
 
-                    {this.state.showContent &&
-                    <div className="mapText position-absolute bgGreen text-center p-1 w-100 px-4"
-                         style={{
-                             fontFamily: 'IRANSans_light',
-                             bottom: this.state.bottom,
-                             right: 0,
-                             zIndex: 97,
-                             transition: 'all .3s'
-                         }}>
-                        <button className="border-radius-10 "
-                                style={{backgroundColor: '#fff', width: '40px', minHeight: '6px'}}
-                                onClick={this.showInfo}>
-                            <div>
-                                <div>
-                                    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} |
-                                        Zoom: {this.state.zoom}</div>
-                                </div>
-                                <div ref={el => this.mapContainer = el} className='mapContainer'/>
-                            </div>
-                        </button>
-                        <div className="container ">
-                            <div className="row my-3">
-                                <div className="col-6 text-left ">
-                                    <button className="text-white border border-radius-10">مسیریابی</button>
-                                </div>
-                                <div className="col-6 text-right text-gold ">
-                                    <span>
-                                        <span className="float-right font-size-09">   750 </span>
-                                        <span className="font-size-07">   تومان </span>
-
-                                    </span>
-                                </div>
-
-                            </div>
-                            <div className="row mt-1 pt-2" dir="rtl " style={{height: '40vh'}}>
-
-
-                                <div className="col-12 ">
-                                    <div className="row">
-                                        <div className="col-6 text-left">
-                                            <button className="border border-radius-10 mx-3"><FontAwesomeIcon
-                                                icon={faCheck} color="#E3CA92" size="1x"/></button>
-                                            <button className="border border-radius-10"><FontAwesomeIcon
-                                                icon={faPhone}
-                                                color="#fff"
-                                                size="1x"
-                                                rotation={90}/>
-                                            </button>
-
-                                        </div>
-                                        <div className="col-6"><p
-                                            className="text-gold font-size-07 text-right mb-2 "> اسامی
-                                            مسافران</p>
-                                        </div>
-
-                                        <div className="col-6">
-                                            <p className="text-white font-size-07 text-right">محمد امین
-                                                قاسمی</p>
-                                        </div>
-                                        <div className="col-6">
-                                            <p className="text-white font-size-07 text-right">رضا عبدی</p>
-                                        </div>
-                                        <div className="col-6">
-                                            <p className="text-white font-size-07 text-right">رضا عبدی</p>
-                                        </div>
-                                        <div className="col-6">
-                                            <p className="text-white font-size-07 text-right">رضا عبدی</p>
-                                        </div>
-
-
-                                    </div>
-                                </div>
-
-
-                            </div>
-
-
-                        </div>
-                    </div>}
+                    {this.state.showContent && <AddTrip/>}
 
                     <RotationControl/>
 
-                    {/*    <ZoomControl/>*/}
-                    {/*   <ScaleControl/>*/}
-                    {!this.state.addDestination && <Marker
-                        coordinates={[this.state.lng, this.state.lat]}
-                        anchor="bottom"
-                    >
-
-                        <FontAwesomeIcon icon={faMapMarker} color="red" size="3x"/>
+                    <Marker
+                        coordinates={this.state.addDestination ? [this.state.origin.lng, this.state.origin.lat] : [this.state.lng, this.state.lat]}
+                        anchor="bottom">
+                        <img src={greenLeaf} alt="leaf" className="max-width-icon-leaf"/>
                     </Marker>
 
+
+                    {this.state.addDestination && <Marker
+                        coordinates={this.state.showContent ? [this.state.destination.lng, this.state.destination.lat] : [this.state.lng, this.state.lat]}
+                        anchor="bottom">
+                        <img src={orangeLeaf} alt="leaf" className="max-width-icon-leaf"/>
+                    </Marker>
                     }
-                    {!this.state.addDestination && <div className="mapText position-absolute text-center p-1 w-100 px-4"
-                                                        style={{
-                                                            fontFamily: 'IRANSans_light',
-                                                            bottom: 0,
-                                                            right: 0,
-                                                            zIndex: 97,
-                                                            transition: 'all .3s'
-                                                        }}>
+                    {!this.state.showContent && <div className="mapText position-absolute text-center p-1 w-100 px-4"
+                                                     style={{
+                                                         fontFamily: 'IRANSans_light',
+                                                         bottom: 0,
+                                                         right: 0,
+                                                         zIndex: 97,
+                                                         transition: 'all .3s'
+                                                     }}>
                         <div className="box-btn mt-2 mb-1">
                             <button type="button" className="bgGreen border-radius-100 font-size-1 text-white px-3 py-1"
-                                    onClick={this.addOrigin}>تایید مبدا
+                                    onClick={!this.state.addDestination ? this.AddOrigin : this.AddDestination}>
+                                {!this.state.addDestination ? 'تایید مبدا' : 'تایید مقصد'}
                             </button>
                         </div>
                     </div>}
 
-                    {this.state.addDestination && <Marker
-
-                        title="این یه مارکره"
-                        coordinates={[51.49943883142606, 35.803193981999655]}
-                        anchor="bottom"
-                    >
-                        <FontAwesomeIcon icon={faMapMarker} color="red" size="2x"/>
-                    </Marker>}
                 </CedarMaps>
             </>
         );
