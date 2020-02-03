@@ -87,9 +87,15 @@
 .overflow{
   overflow-y: scroll;
 }
+.overflow-x{
+  overflow-x: scroll;
+}
 .overflow-hidden{
   overflow: hidden;
 }
 .opacity-0{
   opacity: 0;
+}
+.transition{
+  transition: all .3s;
 }

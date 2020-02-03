@@ -5,6 +5,7 @@ import greenLeaf from '../../images/cedarmaps_marker_icon_start.png';
 import orangeLeaf from '../../images/cedarmaps_marker_icon_end.png';
 import HeaderMap from "./headerMap";
 import AddTrip from "./addTrip";
+import Telegram from "../../images/logo-app/telegram.png";
 
 const cedarMaps = require('@cedarstudios/cedarmaps');
 const client = cedarMaps('2e6f3b1a94fd3ae41bda2d1ac5cee21af542c0c2');
@@ -18,15 +19,20 @@ class MapPage extends Component {
         origin: null,
         destination: null,
         addDestination: false,
+        addOrigin: true,
         showContent: false,
         search: '',
         allowSearch: false,
-        listSearch: []
+        listSearch: [],
+        searchLng: '',
+        searchLat: '',
+        back: false
     };
 
     AddOrigin = () => {
         this.setState({
             addDestination: true,
+            addOrigin: false,
             origin: this.state.geocoder,
             lng: this.state.lng + 0.000199999999,
             lat: this.state.lat + 0.000099999999
@@ -35,57 +41,77 @@ class MapPage extends Component {
     AddDestination = () => {
         this.setState({
             showContent: true,
+            addDestination: false,
             destination: this.state.geocoder,
+            back: true
         });
     };
     backClick = () => {
-        this.setState({
-            showContent: false,
-            addDestination: false,
-        });
-    };
-    searchInput = (value) => {
-
-        if (value.length >= 3 && value !== '') {
-
+        if (!this.state.addOrigin && !this.state.addDestination) {
             this.setState({
-                search: value
-            })
-            console.log(this.state.search)
+                showContent: false,
+                addDestination: true,
+                back: true
+            });
+        } else {
+            this.setState({
+                addDestination: false,
+                addOrigin: true,
+                back: true
+            });
         }
-            setTimeout(() => {
-                if (this.state.search === value) {
-                    this.setState({
-                        allowSearch: true
-                    })
-                }
-            }, 1300)
-
-
     };
+    /*    searchInput = (value) => {
+
+            if (value.length >= 3) {
+
+                this.setState({
+                    search: value
+                });
+                console.log(this.state.search)
+            } else {
+                this.setState({
+                    listSearch: []
+                });
+            }
+
+
+        };*/
+
+    /*   searchDestination = (e) => {
+           this.setState({
+               searchLng: Number(e.split(',')[1]),
+               searchLat: Number(e.split(',')[0]),
+           });
+       };*/
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        setTimeout(() => {
-            if (this.state.allowSearch) {
-                client.forwardGeocoding(encodeURIComponent(this.state.search), 'cedarmaps.streets', {type: 'roundabout'}, (err, res) => {
+        if (prevState.search !== this.state.search) {
+            client.forwardGeocoding(encodeURIComponent(this.state.search), 'cedarmaps.streets', {type: 'roundabout'}, (err, res) => {
+                if (res) {
 
-                    let listSearch = res.filter((item) => {
-                        return item.components.province === "تهران";
+                    let listSearch = res.filter((item, index) => {
+                        return (item.components.province === "تهران")
                     });
                     this.setState({
                         listSearch: listSearch,
-                        allowSearch: false
-                    })
-                });
-                console.log(this.state.listSearch);
-            }
-        }, 1000)
+                    });
 
+                }
+
+            });
+        }
+        if (prevState.searchLng !== this.state.searchLng) {
+            this.setState({
+                lng: this.state.searchLng,
+                lat: this.state.searchLat,
+                allowSearch: true
+            });
+        }
     }
 
     render() {
-
-        if (this.state.geocoder === null) {
+        if (this.state.geocoder === null || this.state.allowSearch) {
             client.reverseGeocoding([this.state.lat, this.state.lng], {verbosity: true}, (err, res) => {
                 let geocoder = {
                     lng: this.state.lng,
@@ -105,53 +131,7 @@ class MapPage extends Component {
         }
 
         const {RotationControl, Popup, GeoJSONLayer, ReactMapboxGL, Cluster, ZoomControl, CenterControl, ScaleControl, Marker, Map, MapContext, L} = CedarMaps.getReactMapboxGl();
-        /*
-        * 0:
-        id: 625653
-        name: "ونک"
-        name_en: ""
-        alt_name: ""
-        alt_name_en: ""
-        type: "locality"
-        location:
-        bb:
-        ne: "35.787902600000002,51.396891400000001"
-        sw: "35.750329600000001,51.386025500000002"
-        __proto__: Object
-        center: "35.7643093874984,51.391913977109297"
-        __proto__: Object
-        address: ""
-        components:
-        country: "ایران"
-        province: "تهران"
-        city: "تهران"
-        districts: ["منطقه ۳"]
-        localities: []
-        __proto__: Object
-        __proto__: Object
-        1:
-        id: 248642
-        name: "میدان ونک"
-        name_en: "Vanak Sq"
-        alt_name: ""
-        alt_name_en: ""
-        type: "roundabout"
-        location: {bb: {…}, center: "35.757536173022501,51.409957192407198"}
-        address: "کاووسیه"
-        components: {country: "ایران", province: "تهران", city: "تهران", districts: Array(1), localities: Array(1)}
-        __proto__: Object
-        2:
-        id: 988763
-        name: "میدان ونک"
-        name_en: "Vanak Square"
-        alt_name: ""
-        alt_name_en: ""
-        type: "roundabout"
-        location: {bb: {…}, center: "38.0660056640736,46.398728811461801"}
-        address: ""
-        components: {country: "ایران", province: "آذربایجان شرقی", city: "تبریز", districts: Array(0), localities: Array(0)}
-        __proto__: Object
-        3:*/
+
         return (
             <>
                 <CedarMaps
@@ -164,10 +144,11 @@ class MapPage extends Component {
                     zoom={[this.state.zoom]}
                     center={[this.state.lng, this.state.lat]}
                     onMove={(e) => {
-                        this.setState({
-                            lng: e.transform.center.lng,
-                            lat: e.transform.center.lat
-                        });
+                
+                            this.setState({
+                                lng: e.transform.center.lng,
+                                lat: e.transform.center.lat
+                            });
 
 
                     }}
@@ -177,7 +158,6 @@ class MapPage extends Component {
                     onMoveEnd={
                         (e) => {
                             client.reverseGeocoding([this.state.lat, this.state.lng], {verbosity: true}, (err, res) => {
-
                                 let geocoder = {
                                     lng: e.transform.center.lng,
                                     lat: e.transform.center.lat,
@@ -224,6 +204,8 @@ class MapPage extends Component {
                                        className="bgGreen"
                                        onClick={this.backClick}
                                        searchInput={this.searchInput}
+                                       listSearch={this.state.listSearch}
+                                /*  searchDestination={this.searchDestination}*/
                             />
                         </div>
                     </div>
@@ -233,14 +215,14 @@ class MapPage extends Component {
                     <RotationControl/>
 
                     <Marker
-                        coordinates={this.state.addDestination ? [this.state.origin.lng, this.state.origin.lat] : [this.state.lng, this.state.lat]}
+                        coordinates={(!this.state.addOrigin) ? [this.state.origin.lng, this.state.origin.lat] : [this.state.lng, this.state.lat]}
                         anchor="bottom">
                         <img src={greenLeaf} alt="leaf" className="max-width-icon-leaf"/>
                     </Marker>
 
 
-                    {this.state.addDestination && <Marker
-                        coordinates={this.state.showContent ? [this.state.destination.lng, this.state.destination.lat] : [this.state.lng, this.state.lat]}
+                    {(!this.state.addOrigin) && <Marker
+                        coordinates={(!this.state.addDestination) ? [this.state.destination.lng, this.state.destination.lat] : [this.state.lng, this.state.lat]}
                         anchor="bottom">
                         <img src={orangeLeaf} alt="leaf" className="max-width-icon-leaf"/>
                     </Marker>
@@ -253,8 +235,8 @@ class MapPage extends Component {
                                                          zIndex: 97,
                                                          transition: 'all .3s'
                                                      }}>
-                        <div className="box-btn mt-2 mb-1">
-                            <button type="button" className="bgGreen border-radius-100 font-size-1 text-white px-3 py-1"
+                        <div className="box-btn mt-2 mb-5">
+                            <button type="button" className="bgGreen border-radius-100 font-size-1 text-white px-3 py-2"
                                     onClick={!this.state.addDestination ? this.AddOrigin : this.AddDestination}>
                                 {!this.state.addDestination ? 'تایید مبدا' : 'تایید مقصد'}
                             </button>
